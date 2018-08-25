@@ -83,9 +83,12 @@ int main(int argc, char * argv[]) {
 		    }
 		} else {
 	    	// Encode fix tiles
+	    	// Input: AB CD EF GH
+	    	//        IJ KL MN OP
+	    	// Output: EF MN .. .. .. .. .. .. GH OP .. .. .. .. .. .. AB IJ .. .. .. .. .. .. CD KL .. .. .. .. .. ..
 		    for (i = 0; i < size; i++) {
-				byte = buffer_in[(i & 0xFFFFFFE0UL) + (fix_column_order[(i >> 2) & 3] << 3) + (i & 7)];
-				buffer_out[i] = (byte >> 4) | ((byte & 15) << 4);	// Nibble swap
+				byte = buffer_in[(i & 0xFFFFFFE0UL) + fix_column_order[(i >> 3) & 3] + ((i & 7) << 2)];
+				buffer_out[i ^ 1] = (byte >> 4) | ((byte & 15) << 4);	// Nibble swap
 		    }
 		}
 	} else {
