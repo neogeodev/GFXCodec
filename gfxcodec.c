@@ -22,7 +22,7 @@ int main(int argc, char * argv[]) {
 	enum { NO_TYPE, FIX, SPR, SPRCD } type = NO_TYPE;
 	unsigned long int bitplanes, indexes, mask;
     const unsigned char fix_column_order[4] = { 2, 3, 0, 1 };
-    const unsigned char bitplane_masks[4] = { 2, 1, 8, 4 };
+    const unsigned char bitplane_masks[4] = { 8, 4, 2, 1 };
     unsigned char byte, color_index, bitplane;
     unsigned char * buffer_in;
     unsigned char * buffer_out;
@@ -133,13 +133,15 @@ int main(int argc, char * argv[]) {
 		    	if ((i & 3) == 3) {
 		    		// Accumulated an 8-pixels row
 					for (bp = 0; bp < 4; bp++) {
-						mask = bitplane_masks[p];
+						mask = bitplane_masks[bp];
 						bitplane = 0;
 						for (p = 0; p < 8; p++) {
-							bitplane |= ((indexes & mask) >> (p << 4));
+							bitplane <<= 1;
+							if (indexes & mask)
+								bitplane |= 1;
 							mask <<= 4;
 						}
-						buffer_out[i + p] = bitplane;
+						buffer_out[((i & 0xFFFC) ^ 0x40) + bp] = bitplane;
 					}
 				}
 		    }
